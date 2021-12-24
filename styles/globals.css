@@ -14,3 +14,7 @@ a {
 * {
   box-sizing: border-box;
 }
+
+::-moz-color-swatch {
+  border-color: red;
+}
