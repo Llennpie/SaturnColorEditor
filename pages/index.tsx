@@ -149,6 +149,19 @@ const parseGameshark = async ( lines: string[], dataMap: GamesharkEntry[] ) => {
   }
 }
 
+const luckyRandomize = async () => {
+  for(let i = 0; i < Math.random() * 100; i++){
+    await new Promise((resolve) => {
+      let tm = setTimeout(() => {
+        randomizeColors()
+        updateMarioColors()
+        resolve(null)
+        clearTimeout(tm)
+      }, 50)
+    })
+  }
+}
+
 const Home: NextPage = () => {
   const windowRef = React.useRef(null);
   useEffect(() => {
@@ -158,6 +171,13 @@ const Home: NextPage = () => {
       camera.updateProjectionMatrix()
       renderer.setSize(window.innerWidth, window.innerHeight)
     }, false)
+
+    window.addEventListener('keypress', (e) => {
+      if(e.key == 'r'){
+        luckyRandomize()
+      }
+    })
+
   }, [])
   const [status, setStatus] = useState(true)
   let inputs = Object.keys(colors).map((k, idx) => {
@@ -240,15 +260,7 @@ const Home: NextPage = () => {
             }}>Random</button>
             <button onClick={async (ev) => {
               ev.preventDefault()
-              for(let i = 0; i < Math.random() * 100; i++){
-                await new Promise((resolve) => {
-                  let tm = setTimeout(() => {
-                    randomizeColors()
-                    resolve(null)
-                    clearTimeout(tm)
-                  }, 50)
-                })
-              }
+              luckyRandomize()
               updateMarioColors()
             }}>I'm Feeling Lucky</button>
           </div>
