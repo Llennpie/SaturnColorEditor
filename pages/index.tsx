@@ -1,13 +1,15 @@
 import * as THREE from 'three'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import type { NextPage } from 'next'
 import { copyToClipboard, hexToRgb, igltf, rgbColorToHex, rgbToHex } from './api/utils'
-import type { IMarioColors } from './api/types'
+import type { IMarioColors, ISM64Material } from './api/types'
 import styles from '../styles/Main.module.scss'
 import { convertPaletteToGS } from './api/gameshark'
 import { PerspectiveCamera, Renderer, Scene } from 'three'
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import Draggable from 'react-draggable'
+import React from 'react'
 
 const colors: IMarioColors = {
   Hat: {
@@ -120,7 +122,35 @@ const randomizeColors = () => {
   })
 }
 
+interface GamesharkEntry {
+  addresses: string[],
+  material: ISM64Material
+}
+
+const parseGameshark = async ( lines: string[], dataMap: GamesharkEntry[] ) => {
+  for(let i = 0; i < lines.length; i++){
+    const line = lines[i].trim();
+    const address = line.substring(2, 8);
+    let color = rgbColorToHex(
+      parseInt(line.substring(9, 11), 16),
+      parseInt(line.substring(11, 13), 16),
+      parseInt(lines[i + 1].substring(9, 11), 16)
+    )
+    dataMap.forEach((entry) => {
+      switch(entry.addresses.indexOf(address)){
+        case 0:
+          entry.material.color = color
+          break;
+        case 1:
+          entry.material.ambient = color
+      }
+    })
+    i++
+  }
+}
+
 const Home: NextPage = () => {
+  const windowRef = React.useRef(null);
   useEffect(() => {
     setup()
     window.addEventListener('resize', () => {
@@ -128,7 +158,8 @@ const Home: NextPage = () => {
       camera.updateProjectionMatrix()
       renderer.setSize(window.innerWidth, window.innerHeight)
     }, false)
-  })
+  }, [])
+  const [status, setStatus] = useState(true)
   let inputs = Object.keys(colors).map((k, idx) => {
     const entry   = colors[k as keyof IMarioColors]
     const color   = rgbToHex(entry.color)
@@ -154,68 +185,88 @@ const Home: NextPage = () => {
     )
   })
   return (
-    <div className={styles.container}>
-      <div className={styles.title}>
-        <img width={26} height={26} src="saturn-logo.png"/>
-        <span>Saturn Color Editor</span>
+    <Draggable nodeRef={windowRef}>
+      <div ref={windowRef} className={styles.container} style={{paddingBottom: status ? '10px' : '0'}}>
+        <div className={styles.title} style={{ borderBottomWidth: status ? '2px' : '0'}}>
+          <img width={26} height={26} src="saturn-logo.png"/>
+          <span>Saturn Color Editor</span>
+          <div className={styles.toggle} onClick={(e) => {
+            setStatus(!status)
+          }}>
+            <img src={
+              status ? "minimize.png" : "maximize.png"
+            }/>
+          </div>
+        </div>
+        <div style={{display: status ? 'block' : 'none', padding: '0', margin: '0'}}>
+          <div className={styles.input}>
+            <input type="checkbox" defaultChecked onChange={(v) => {
+              autoRotate = v.target.checked
+            }}/>
+            <span>Auto Rotate</span>
+          </div>
+          <div className={styles.input}>
+            <input type="checkbox" defaultChecked onChange={(v) => {
+              showGrid = v.target.checked
+            }}/>
+            <span>Show Grid</span>
+          </div>
+          { inputs }
+          <div className={styles.buttons}>
+            <button onClick={async (ev) => {
+              ev.preventDefault()
+              const lines = await (await navigator.clipboard.readText()).split("\n").filter((l) => l.length > 1);
+              await parseGameshark(lines, [
+                { addresses: ['07EC40', '07EC38'], material: colors.Hat },
+                { addresses: ['07EC28', '07EC20'], material: colors.Overall },
+                { addresses: ['07EC58', '07EC50'], material: colors.Gloves },
+                { addresses: ['07EC70', '07EC68'], material: colors.Shoes },
+                { addresses: ['07EC88', '07EC80'], material: colors.Face },
+                { addresses: ['07ECA0', '07EC98'], material: colors.Hair }
+              ]);
+              updateMarioColors()
+            }}>Import GS</button>
+            <button onClick={async (ev) => {
+              ev.preventDefault()
+              copyToClipboard(convertPaletteToGS(colors))
+              alert("Copied to clipboard")
+            }}>Export GS</button>
+          </div>
+          <div className={styles.buttons}>
+            <button onClick={(ev) => {
+              ev.preventDefault()
+              randomizeColors()
+              updateMarioColors()
+            }}>Random</button>
+            <button onClick={async (ev) => {
+              ev.preventDefault()
+              for(let i = 0; i < Math.random() * 100; i++){
+                await new Promise((resolve) => {
+                  let tm = setTimeout(() => {
+                    randomizeColors()
+                    resolve(null)
+                    clearTimeout(tm)
+                  }, 50)
+                })
+              }
+              updateMarioColors()
+            }}>I'm Feeling Lucky</button>
+          </div>
+          <span className={styles.footer}>Saturn Links -
+            <a href='https://discord.gg/rGqREG2kYv'>
+              <img src="discord.png" width={16}/>
+            </a>
+            <a href='https://github.com/Llennpie/Saturn'>
+              <img src="github.png" width={16}/>
+            </a>
+            <a href='https://ko-fi.com/sm64rise'>
+              <img src="kofi.png" width={20}/>
+            </a>
+          </span>
+          <span className={styles.footer}>Made with<img src="heart.png" width={16} height={16}/>by <a className={styles.twitter} href='https://twitter.com/KiritoDev'>@KiritoDev</a></span>
+        </div>
       </div>
-      <div className={styles.input}>
-        <input type="checkbox" defaultChecked onChange={(v) => {
-          autoRotate = v.target.checked
-        }}/>
-        <span>Auto Rotate</span>
-      </div>
-      <div className={styles.input}>
-        <input type="checkbox" defaultChecked onChange={(v) => {
-          showGrid = v.target.checked
-        }}/>
-        <span>Show Grid</span>
-      </div>
-      { inputs }
-      <div className={styles.buttons}>
-        <button onClick={(ev) => {
-          ev.preventDefault()
-          updateMarioColors()
-        }}>Import GS</button>
-        <button onClick={async (ev) => {
-          ev.preventDefault()
-          copyToClipboard(convertPaletteToGS(colors))
-          alert("Copied to clipboard")
-        }}>Export GS</button>
-      </div>
-      <div className={styles.buttons}>
-        <button onClick={(ev) => {
-          ev.preventDefault()
-          randomizeColors()
-          updateMarioColors()
-        }}>Random</button>
-        <button onClick={async (ev) => {
-          ev.preventDefault()
-          for(let i = 0; i < Math.random() * 100; i++){
-            await new Promise((resolve) => {
-              let tm = setTimeout(() => {
-                randomizeColors()
-                resolve(null)
-                clearTimeout(tm)
-              }, 50)
-            })
-          }
-          updateMarioColors()
-        }}>I Feel Lucky</button>
-      </div>
-      <span className={styles.footer}>Saturn Links -
-        <a href='https://discord.gg/rGqREG2kYv'>
-          <img src="discord.png" width={16}/>
-        </a>
-        <a href='https://github.com/Llennpie/Saturn'>
-          <img src="github.png" width={16}/>
-        </a>
-        <a href='https://ko-fi.com/sm64rise'>
-          <img src="kofi.png" width={20}/>
-        </a>
-      </span>
-      <span className={styles.footer}>Made with<img src="heart.png" width={16} height={16}/>by <a className={styles.twitter} href='https://twitter.com/KiritoDev'>@KiritoDev</a></span>
-    </div>
+    </Draggable>
   )
 }
 
