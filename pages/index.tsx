@@ -47,10 +47,13 @@ let renderer: Renderer
 
 const updateMarioColors = () => {
   marioScene.scene.traverse( ( child ) => {
+    //@ts-ignore
     if(child.isMesh){
+      //@ts-ignore
       let name = child.material.name
       let entry = colors[name as keyof IMarioColors]
       if(entry != undefined)
+        //@ts-ignore
         child.material = new THREE.MeshLambertMaterial({
           color: entry.ambient,
           emissive: entry.color,
@@ -117,7 +120,9 @@ const randomizeColors = () => {
     const ambient = rgbColorToHex(Math.round((preprocessed.r + 1) / 2), Math.round((preprocessed.g + 1) / 2), Math.round((preprocessed.b + 1) / 2))
     entry.color = color
     entry.ambient = ambient
+    //@ts-ignore
     document.getElementById(`${k}-color`).value = rgbToHex(color)
+    //@ts-ignore
     document.getElementById(`${k}-ambient`).value = rgbToHex(ambient)
   })
 }
@@ -262,7 +267,7 @@ const Home: NextPage = () => {
               ev.preventDefault()
               luckyRandomize()
               updateMarioColors()
-            }}>I'm Feeling Lucky</button>
+            }}>I&rsquo;m Feeling Lucky</button>
           </div>
           <span className={styles.footer}>Saturn Links -
             <a href='https://discord.gg/rGqREG2kYv'>
