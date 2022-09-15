@@ -210,80 +210,78 @@ const Home: NextPage = () => {
     )
   })
   return (
-    <Draggable nodeRef={windowRef}>
-      <div ref={windowRef} className={styles.container} style={{paddingBottom: status ? '10px' : '0'}}>
-        <div className={styles.title} style={{ borderBottomWidth: status ? '2px' : '0'}}>
-          <img width={26} height={26} src="saturn-logo.png"/>
-          <span>Saturn Color Editor</span>
-          <div className={styles.toggle} onClick={(e) => {
-            setStatus(!status)
-          }}>
-            <img src={
-              status ? "minimize.png" : "maximize.png"
-            }/>
-          </div>
-        </div>
-        <div style={{display: status ? 'block' : 'none', padding: '0', margin: '0'}}>
-          <div className={styles.input}>
-            <input type="checkbox" defaultChecked onChange={(v) => {
-              autoRotate = v.target.checked
-            }}/>
-            <span>Auto Rotate</span>
-          </div>
-          <div className={styles.input}>
-            <input type="checkbox" defaultChecked onChange={(v) => {
-              showGrid = v.target.checked
-            }}/>
-            <span>Show Grid</span>
-          </div>
-          { inputs }
-          <div className={styles.buttons}>
-            <button onClick={async (ev) => {
-              ev.preventDefault()
-              const lines = await (await navigator.clipboard.readText()).split("\n").filter((l) => l.length > 1);
-              await parseGameshark(lines, [
-                { addresses: ['07EC40', '07EC38'], material: colors.Hat },
-                { addresses: ['07EC28', '07EC20'], material: colors.Overall },
-                { addresses: ['07EC58', '07EC50'], material: colors.Gloves },
-                { addresses: ['07EC70', '07EC68'], material: colors.Shoes },
-                { addresses: ['07EC88', '07EC80'], material: colors.Face },
-                { addresses: ['07ECA0', '07EC98'], material: colors.Hair }
-              ]);
-              updateMarioColors()
-            }}>Import GS</button>
-            <button onClick={async (ev) => {
-              ev.preventDefault()
-              copyToClipboard(convertPaletteToGS(colors))
-              alert("Copied to clipboard")
-            }}>Export GS</button>
-          </div>
-          <div className={styles.buttons}>
-            <button onClick={(ev) => {
-              ev.preventDefault()
-              randomizeColors()
-              updateMarioColors()
-            }}>Random</button>
-            <button onClick={async (ev) => {
-              ev.preventDefault()
-              luckyRandomize()
-              updateMarioColors()
-            }}>I&rsquo;m Feeling Lucky</button>
-          </div>
-          <span className={styles.footer}>Saturn Links -
-            <a href='https://discord.gg/rGqREG2kYv'>
-              <img src="discord.png" width={16}/>
-            </a>
-            <a href='https://github.com/Llennpie/Saturn'>
-              <img src="github.png" width={16}/>
-            </a>
-            <a href='https://ko-fi.com/sm64rise'>
-              <img src="kofi.png" width={20}/>
-            </a>
-          </span>
-          <span className={styles.footer}>Made with<img src="heart.png" width={16} height={16}/>by <a className={styles.twitter} href='https://twitter.com/KiritoDev'>@KiritoDev</a></span>
+    <div ref={windowRef} className={styles.container} style={{paddingBottom: status ? '10px' : '0'}}>
+      <div className={styles.title} style={{ borderBottomWidth: status ? '2px' : '0'}}>
+        <img width={26} height={26} src="saturn-logo.png"/>
+        <span>Saturn Color Editor</span>
+        <div className={styles.toggle} onClick={(e) => {
+          setStatus(!status)
+        }}>
+          <img src={
+            status ? "minimize.png" : "maximize.png"
+          }/>
         </div>
       </div>
-    </Draggable>
+      <div style={{display: status ? 'block' : 'none', padding: '0', margin: '0'}}>
+        <div className={styles.input}>
+          <input type="checkbox" defaultChecked onChange={(v) => {
+            autoRotate = v.target.checked
+          }}/>
+          <span>Auto Rotate</span>
+        </div>
+        <div className={styles.input}>
+          <input type="checkbox" defaultChecked onChange={(v) => {
+            showGrid = v.target.checked
+          }}/>
+          <span>Show Grid</span>
+        </div>
+        { inputs }
+        <div className={styles.buttons}>
+          <button onClick={async (ev) => {
+            ev.preventDefault()
+            const lines = await (await navigator.clipboard.readText()).split("\n").filter((l) => l.length > 1);
+            await parseGameshark(lines, [
+              { addresses: ['07EC40', '07EC38'], material: colors.Hat },
+              { addresses: ['07EC28', '07EC20'], material: colors.Overall },
+              { addresses: ['07EC58', '07EC50'], material: colors.Gloves },
+              { addresses: ['07EC70', '07EC68'], material: colors.Shoes },
+              { addresses: ['07EC88', '07EC80'], material: colors.Face },
+              { addresses: ['07ECA0', '07EC98'], material: colors.Hair }
+            ]);
+            updateMarioColors()
+          }}>Import GS</button>
+          <button onClick={async (ev) => {
+            ev.preventDefault()
+            copyToClipboard(convertPaletteToGS(colors))
+            alert("Copied to clipboard")
+          }}>Export GS</button>
+        </div>
+        <div className={styles.buttons}>
+          <button onClick={(ev) => {
+            ev.preventDefault()
+            randomizeColors()
+            updateMarioColors()
+          }}>Random</button>
+          <button onClick={async (ev) => {
+            ev.preventDefault()
+            luckyRandomize()
+            updateMarioColors()
+          }}>I&rsquo;m Feeling Lucky</button>
+        </div>
+        <span className={styles.footer}>Saturn Links -
+          <a href='https://discord.gg/rGqREG2kYv'>
+            <img src="discord.png" width={16}/>
+          </a>
+          <a href='https://github.com/Llennpie/SaturnColorEditor'>
+            <img src="github.png" width={16}/>
+          </a>
+          <a href='https://ko-fi.com/sm64rise'>
+            <img src="kofi.png" width={20}/>
+          </a>
+        </span>
+        <span className={styles.footer}>Made with<img src="heart.png" width={16} height={16}/>by <a className={styles.twitter} href='https://twitter.com/KiritoDev'>@KiritoDev</a></span>
+      </div>
+    </div>
   )
 }
 
