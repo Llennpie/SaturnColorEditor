@@ -129,7 +129,8 @@ const randomizeColors = () => {
 
 interface GamesharkEntry {
   addresses: string[],
-  material: ISM64Material
+  material: ISM64Material,
+  name: string
 }
 
 const parseGameshark = async ( lines: string[], dataMap: GamesharkEntry[] ) => {
@@ -145,11 +146,16 @@ const parseGameshark = async ( lines: string[], dataMap: GamesharkEntry[] ) => {
       switch(entry.addresses.indexOf(address)){
         case 0:
           entry.material.color = color
+          //@ts-ignore
+          document.getElementById(`${entry.name}-color`).value = rgbToHex(color)
           break;
         case 1:
           entry.material.ambient = color
+          //@ts-ignore
+          document.getElementById(`${entry.name}-ambient`).value = rgbToHex(color)
       }
     })
+
     i++
   }
 }
@@ -241,12 +247,12 @@ const Home: NextPage = () => {
             ev.preventDefault()
             const lines = await (await navigator.clipboard.readText()).split("\n").filter((l) => l.length > 1);
             await parseGameshark(lines, [
-              { addresses: ['07EC40', '07EC38'], material: colors.Hat },
-              { addresses: ['07EC28', '07EC20'], material: colors.Overall },
-              { addresses: ['07EC58', '07EC50'], material: colors.Gloves },
-              { addresses: ['07EC70', '07EC68'], material: colors.Shoes },
-              { addresses: ['07EC88', '07EC80'], material: colors.Face },
-              { addresses: ['07ECA0', '07EC98'], material: colors.Hair }
+              { addresses: ['07EC40', '07EC38'], material: colors.Hat, name: "Hat" },
+              { addresses: ['07EC28', '07EC20'], material: colors.Overall, name: "Overall" },
+              { addresses: ['07EC58', '07EC50'], material: colors.Gloves, name: "Gloves" },
+              { addresses: ['07EC70', '07EC68'], material: colors.Shoes, name: "Shoes" },
+              { addresses: ['07EC88', '07EC80'], material: colors.Face, name: "Face" },
+              { addresses: ['07ECA0', '07EC98'], material: colors.Hair, name: "Hair" }
             ]);
             updateMarioColors()
           }}>Import GS</button>
