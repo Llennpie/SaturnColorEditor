@@ -20,10 +20,3 @@ yarn dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-For use with GitHub pages, compile the application with:
-
-```bash
-npm run build
-npm run export
-```
